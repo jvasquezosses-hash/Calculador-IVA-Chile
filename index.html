@@ -1,1 +1,187 @@
-<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="theme-color" content="#0078d7"><title>IVA Chile</title><link rel="manifest" href="manifest.json"></head><body><h1>IVA Chile</h1><p>PWA de ejemplo.</p></body></html>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0078d7">
+
+<title>IVA Chile</title>
+
+<link rel="manifest" href="manifest.json">
+
+<style>
+body{
+    font-family:'Segoe UI',sans-serif;
+    background:#f4f4f4;
+    margin:0;
+    padding:20px;
+}
+
+.container{
+    max-width:600px;
+    margin:auto;
+    background:white;
+    padding:25px;
+    border-radius:12px;
+    box-shadow:0 2px 10px rgba(0,0,0,.1);
+}
+
+h1{
+    text-align:center;
+    color:#0078d7;
+}
+
+label{
+    display:block;
+    margin-top:15px;
+}
+
+input, select{
+    width:100%;
+    padding:12px;
+    margin-top:5px;
+    box-sizing:border-box;
+    border:1px solid #ccc;
+    border-radius:6px;
+}
+
+button{
+    width:100%;
+    padding:12px;
+    margin-top:20px;
+    background:#0078d7;
+    color:white;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+    font-size:16px;
+}
+
+button:hover{
+    background:#0063b1;
+}
+
+.result{
+    margin-top:20px;
+    background:#eef6ff;
+    padding:15px;
+    border-radius:6px;
+}
+
+.value{
+    font-weight:bold;
+    color:#0078d7;
+}
+
+.footer{
+    margin-top:20px;
+    text-align:center;
+    color:#666;
+    font-size:12px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>IVA Chile 🇨🇱</h1>
+
+<label>Tipo de cálculo</label>
+
+<select id="modo">
+  <option value="neto">Calcular desde Neto</option>
+  <option value="total">Calcular desde Total</option>
+</select>
+
+<label>Monto</label>
+
+<input
+type="number"
+id="monto"
+placeholder="Ingrese monto en pesos chilenos">
+
+<button onclick="calcular()">
+Calcular IVA
+</button>
+
+<div class="result" id="resultado">
+Ingrese un valor para comenzar.
+</div>
+
+<div class="footer">
+IVA Chile v1.0<br>
+Los resultados son referenciales y no constituyen asesoramiento tributario.
+</div>
+
+</div>
+
+<script>
+
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('service-worker.js');
+}
+
+function clp(valor){
+    return new Intl.NumberFormat('es-CL',{
+        style:'currency',
+        currency:'CLP',
+        maximumFractionDigits:0
+    }).format(valor);
+}
+
+function calcular(){
+
+    const monto = parseFloat(
+        document.getElementById('monto').value
+    );
+
+    const modo = document.getElementById('modo').value;
+
+    const resultado =
+        document.getElementById('resultado');
+
+    if(isNaN(monto) || monto <= 0){
+        resultado.innerHTML =
+        'Ingrese un monto válido.';
+        return;
+    }
+
+    if(modo === 'neto'){
+
+        const iva = monto * 0.19;
+        const total = monto + iva;
+
+        resultado.innerHTML = `
+            <p>Neto:
+            <span class="value">${clp(monto)}</span></p>
+
+            <p>IVA 19%:
+            <span class="value">${clp(iva)}</span></p>
+
+            <p>Total:
+            <span class="value">${clp(total)}</span></p>
+        `;
+    }
+    else{
+
+        const neto = monto / 1.19;
+        const iva = monto - neto;
+
+        resultado.innerHTML = `
+            <p>Total:
+            <span class="value">${clp(monto)}</span></p>
+
+            <p>Neto:
+            <span class="value">${clp(neto)}</span></p>
+
+            <p>IVA incluido:
+            <span class="value">${clp(iva)}</span></p>
+        `;
+    }
+}
+</script>
+
+</body>
+</html>
